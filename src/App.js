@@ -24,7 +24,7 @@ function App() {
   React.useEffect((user) => {
     onAuthStateChanged(auth, (user) => {
       setLoading(false);
-      console.log(user.email[0].toUpperCase);
+      console.log(user);
       if(user) {
         setUser(user)
       }
