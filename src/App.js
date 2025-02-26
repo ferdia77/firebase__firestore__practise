@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import { auth, db } from './firebase/init';
-import { collection, addDoc, getDocs, getDoc, doc, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, getDoc, doc, query, where, updateDoc, deleteDoc } from "firebase/firestore";
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -13,11 +13,30 @@ function App() {
   const[user, setUser] = React.useState({});
   const [loading, setLoading] = React.useState(true);
 
+  async function updatePost() {
+    const hardCodedId = "KsREdlrAcoq0j48lUPne";
+    const postRef = doc(db, "posts", hardCodedId);
+    const post = await getPostById(hardCodedId);
+    console.log(post);
+    const newPost = {
+       ...post,
+       title: "land a 451k job",
+     };
+     console.log(newPost)
+     updateDoc(postRef, newPost)
+  }
+  
+  function deletePost() {
+    const hardCodedId = "KsREdlrAcoq0j48lUPne";
+    const postRef = doc(db, "posts", hardCodedId);
+    deleteDoc(postRef);
+  }
+
   function createPost() {
     const post = {
-      title: "Finish Firebase Section",
+      title: "Finish Firebase",
       description: " Ace Frontend Simplified",
-      uid: user.uid
+      uid: user.uid, 
     };
     addDoc(collection(db, "posts"), post)
   }
@@ -28,21 +47,21 @@ function App() {
     console.log(posts)
   }
 
-  async function getPostById() {
-    const hardCodedId = "KsREdlrAcoq0j48lUPne";
-    const postRef = doc(db, "posts", hardCodedId);
+  async function getPostById(id) {
+    
+    const postRef = doc(db, "posts", id);
     const postSnap = await getDoc(postRef);
-    const post = postSnap.data();
-    console.log(post)
+    return postSnap.data();
+    
   }
 
   async function getPostByUid() {
-    const postCollection = await query(
+    const postCollectionRef = await query(
       collection(db, "posts"),
-      where("uid", "==", user.uid)
+      where("uid", "==", "1")
     );
-    const { docs } = await getDocs(collection(db, "posts"));
-    console.log(docs);
+    const { docs } = await getDocs(postCollectionRef);
+    console.log(docs.map(doc => doc.data()));
   }
 
 
@@ -95,6 +114,8 @@ function logout() {
       <button onClick={getAllPosts}>Get All Posts</button>
       <button onClick={getPostById}>Get Posts By ID</button>
       <button onClick={getPostByUid}>Get Posts By UiD</button>
+      <button onClick={updatePost}>Update Post</button>
+      <button onClick={deletePost}>Delete Post</button>
     </div>
   );
 }
